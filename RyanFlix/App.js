@@ -10,6 +10,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Video } from 'expo-av'; // player oficial do Expo
 
 const { width } = Dimensions.get('window');
 
@@ -27,7 +28,15 @@ export default function App() {
   const [senha, setSenha] = useState('');
   const [selectedProfile, setSelectedProfile] = useState(null);
 
-  // Tela Inicial (Welcome)
+  const logoRF = require('./assets/logo_rf.png');
+  const userIcon = require('./assets/user_icon.png');
+  const vlogRyan = require('./assets/vlog_ryan.png');
+
+  // URL do vídeo Mux (HLS .m3u8)
+  const muxVideoUrl = 'https://stream.mux.com/zhHyqy2VNOScojVUF01pbW6sDFfh6DYM4BUDJEyUwPSM.m3u8';
+
+  // --- Telas ---
+
   if (screen === 'welcome') {
     return (
       <LinearGradient colors={['#000000', '#A00']} style={styles.container}>
@@ -41,15 +50,12 @@ export default function App() {
             <Text style={styles.signInText}>Entrar</Text>
           </TouchableOpacity>
         </View>
-
         <View style={styles.centerContent}>
           <Text style={styles.subtitle}>
             Todas as produções da{'\n'}
-            Golden Boy Studios{'\n'}
-            Em Um Só Lugar
+            Golden Boy Studios{'\n'}Em Um Só Lugar
           </Text>
         </View>
-
         <View style={styles.bottomBar}>
           <TouchableOpacity
             style={styles.subscribeButton}
@@ -63,7 +69,6 @@ export default function App() {
     );
   }
 
-  // Tela Login
   if (screen === 'login') {
     return (
       <LinearGradient colors={['#000', '#A00']} style={styles.container}>
@@ -101,7 +106,6 @@ export default function App() {
     );
   }
 
-  // Tela Seleção de Perfil
   if (screen === 'profileSelect') {
     return (
       <LinearGradient colors={['#000', '#A00']} style={styles.container}>
@@ -137,28 +141,64 @@ export default function App() {
     );
   }
 
-  // Tela Home (última tela) com logo RF, usuário e imagem central
   if (screen === 'home' && selectedProfile) {
     return (
       <LinearGradient colors={['#000', '#A00']} style={styles.homeContainer}>
         <View style={styles.header}>
-          <Image source={require('./assets/logo_rf.png')} style={styles.logoRF} />
+          <Image source={logoRF} style={styles.logoRF} />
           <View style={styles.menu}>
             <Text style={styles.menuItem}>Programas</Text>
             <Text style={styles.menuItem}>Produtos</Text>
             <Text style={styles.menuItem}>Ajuda</Text>
           </View>
           <TouchableOpacity>
-            <Image source={require('./assets/user_icon.png')} style={styles.userIcon} />
+            <Image source={userIcon} style={styles.userIcon} />
           </TouchableOpacity>
         </View>
-
         <View style={styles.content}>
-          <Image
-            source={require('./assets/vlog_ryan.png')}
-            style={styles.poster}
-            resizeMode="cover"
-          />
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => setScreen('video')}
+          >
+            <Image
+              source={vlogRyan}
+              style={styles.poster}
+              resizeMode="cover"
+            />
+          </TouchableOpacity>
+          <Text style={styles.titleHome}>Vlog do Ryan:{"\n"}Sem Censura</Text>
+          <Text style={styles.desc}>
+            No Vlog do Ryan Sem Censura, veja tudo sem cortes: episódios completos, bastidores e conteúdos exclusivos só no site.
+          </Text>
+        </View>
+      </LinearGradient>
+    );
+  }
+
+  if (screen === 'video') {
+    return (
+      <LinearGradient colors={['#000', '#A00']} style={styles.homeContainer}>
+        <View style={styles.header}>
+          <Image source={logoRF} style={styles.logoRF} />
+          <View style={styles.menu}>
+            <Text style={styles.menuItem}>Programas</Text>
+            <Text style={styles.menuItem}>Produtos</Text>
+            <Text style={styles.menuItem}>Ajuda</Text>
+          </View>
+          <TouchableOpacity onPress={() => setScreen('home')}>
+            <Image source={userIcon} style={styles.userIcon} />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.content}>
+          <View style={styles.videoBox}>
+            <Video
+              source={{ uri: muxVideoUrl }}
+              style={{ width: '100%', height: '100%', borderRadius: 12, backgroundColor: '#000' }}
+              useNativeControls
+              resizeMode="contain"
+              shouldPlay
+            />
+          </View>
           <Text style={styles.titleHome}>Vlog do Ryan:{"\n"}Sem Censura</Text>
           <Text style={styles.desc}>
             No Vlog do Ryan Sem Censura, veja tudo sem cortes: episódios completos, bastidores e conteúdos exclusivos só no site.
@@ -172,10 +212,7 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  // Estilos comuns
-  container: {
-    flex: 1,
-  },
+  container: { flex: 1 },
   topBar: {
     width: '100%',
     flexDirection: 'row',
@@ -285,8 +322,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 36,
   },
-
-  // Tela Home específica
   homeContainer: {
     flex: 1,
   },
@@ -345,5 +380,16 @@ const styles = StyleSheet.create({
     fontSize: 15,
     textAlign: 'center',
     lineHeight: 20,
+  },
+  videoBox: {
+    width: width * 0.8,
+    height: 210,
+    backgroundColor: '#111',
+    borderWidth: 2,
+    borderColor: '#E50914',
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
   },
 });
